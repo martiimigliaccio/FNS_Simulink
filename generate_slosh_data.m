@@ -88,14 +88,15 @@ opts = odeset('RelTol',1e-6, 'AbsTol',1e-8, 'MaxStep', dt);
 % Ricampiona su griglia uniforme
 delta      = interp1(t_ode, y_ode(:,1), t, 'linear');
 delta_dot  = interp1(t_ode, y_ode(:,2), t, 'linear');
-delta_ddot = gradient(delta_dot, dt);
+delta_ddot = -2*zeta*wn*delta_dot - wn^2*delta - Azb/L_p;
 
 %% --------------------------------------------------------
 %  7. CALCOLO FORZE E MOMENTI DI SLOSHING
 %% --------------------------------------------------------
-Fz_sl = -m_s * (L_p * delta_ddot + Azb);         % forza laterale [N]
-Fx_sl = -m_s * L_p * delta_ddot .* delta;         % forza assiale (2° ordine) [N]
-My_sl = -m_s * Azb * xcg_tank_pay;               % momento di pitch [N·m]
+
+Fz_sl = -m_s * (L_p * delta_ddot + Azb); 
+Fx_sl = -m_s * L_p * (delta_dot.^2 + delta_ddot .* delta);  
+My_sl = Fz_sl .* xcg_tank_pay;            
 
 fprintf('Integrazione completata.\n')
 fprintf('delta:    max=%.4f rad = %.2f deg\n', max(abs(delta)), max(abs(delta))*180/pi)
